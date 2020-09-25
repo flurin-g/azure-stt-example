@@ -28,5 +28,6 @@ If you only want to see complete utterances without the intermediate results:
 Per default the file `mary_and_sarah.wav` will be transcribed, 
 if you want to use another file instead, place it in the data-folder
 and specify it as an argument, like so:
+
 `python main.py --mode once --file mary_and_sarah.wav`
 
