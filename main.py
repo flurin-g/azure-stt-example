@@ -10,16 +10,17 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices=('once', 'continuous'))
     parser.add_argument('--show', choices=('all', 'utterance'), default="all")
+    parser.add_argument('--file', default="mary_and_sarah.wav")
     args = parser.parse_args()
     return args
 
 
-def recognize_once():
+def recognize_once(file_name: str):
     # set address of container
     speech_config = speechsdk.SpeechConfig(host="ws://localhost:5000")
 
     # use file for stt:
-    audio_input = speechsdk.AudioConfig(filename="data/mary_and_sarah.wav")
+    audio_input = speechsdk.AudioConfig(filename=f"data/{file_name}")
 
     # instantiate speech_recognizer
     speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_input)
@@ -38,9 +39,9 @@ def recognize_once():
             print("Error details: {}".format(cancellation_details.error_details))
 
 
-def recognize_continuous(show: bool):
+def recognize_continuous(show: bool, file_name):
     # use file for stt:
-    audio_input = speechsdk.AudioConfig(filename="data/mary_and_sarah.wav")
+    audio_input = speechsdk.AudioConfig(filename=f"data/{file_name}")
 
     # set address of container
     speech_config = speechsdk.SpeechConfig(host="ws://localhost:5000")
@@ -90,9 +91,9 @@ def recognize_continuous(show: bool):
 if __name__ == '__main__':
     args = get_args()
     if args.mode == "once":
-        recognize_once()
+        recognize_once(args.file)
     elif args.mode == "continuous":
-        recognize_continuous(args.show)
+        recognize_continuous(args.show, args.file)
     else:
         print("Specify mode: either once or continuous")
 
