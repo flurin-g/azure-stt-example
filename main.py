@@ -46,6 +46,9 @@ def recognize_continuous(show: bool, file_name):
     # set address of container
     speech_config = speechsdk.SpeechConfig(host="ws://localhost:5000")
 
+    # request timing info
+    speech_config.request_word_level_timestamps()
+
     # state of job, once finished == true
     done = False
 
@@ -62,12 +65,21 @@ def recognize_continuous(show: bool, file_name):
         nonlocal done
         done = True
 
+    def formatted_json(evt):
+        res = evt.result.json
+        return f'this is the result: {res}'
+
+
     # Signal for events containing intermediate recognition results
     if show == "all":
         speech_recognizer.recognizing.connect(lambda evt: print('RECOGNIZING: {}'.format(evt)))
 
     # Signal for events containing final recognition results (indicating a successful recognition attempt)
-    speech_recognizer.recognized.connect(lambda evt: print('RECOGNIZED: {}'.format(evt)))
+    # original snippet from azure examples
+    #speech_recognizer.recognized.connect(lambda evt: print('RECOGNIZED: {}'.format(evt)))
+
+    # test method, to see all the json-fields
+    speech_recognizer.recognized.connect(lambda evt: print('RECOGNIZED: {}'.format(formatted_json(evt))))
 
     # Signal for events indicating the start of a recognition session (operation).
     speech_recognizer.session_started.connect(lambda evt: print('SESSION STARTED: {}'.format(evt)))
