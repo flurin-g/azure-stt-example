@@ -1,6 +1,7 @@
 # This example shows how to use the Azure STT container
 # Examples are taken from:
 # https://docs.microsoft.com/en-gb/azure/cognitive-services/speech-service/get-started-speech-to-text?tabs=script%2Cwindowsinstall&pivots=programming-language-python
+import json
 import time
 import azure.cognitiveservices.speech as speechsdk
 import argparse
@@ -65,10 +66,14 @@ def recognize_continuous(show: bool, file_name):
         nonlocal done
         done = True
 
-    def formatted_json(evt):
-        res = evt.result.json
-        return f'this is the result: {res}'
-
+    def formatted_json(stt_json):
+        stt_json = json.loads(stt_json)
+        confidences_in_nbest = [item["Confidence"] for item in stt_json["NBest"]]
+        best_index = confidences_in_nbest.index(max(confidences_in_nbest))
+        words = stt_json["NBest"][best_index]["Words"]
+        display_text = stt_json["NBest"][best_index]['Display']
+        raw_words = [x['Word'] for x in stt_json["NBest"][best_index]["Words"]]
+        return f'words: {words}\ndisplay text: {display_text}\nraw words: {raw_words}'
 
     # Signal for events containing intermediate recognition results
     if show == "all":
@@ -79,7 +84,7 @@ def recognize_continuous(show: bool, file_name):
     #speech_recognizer.recognized.connect(lambda evt: print('RECOGNIZED: {}'.format(evt)))
 
     # test method, to see all the json-fields
-    speech_recognizer.recognized.connect(lambda evt: print('RECOGNIZED: {}'.format(formatted_json(evt))))
+    speech_recognizer.recognized.connect(lambda evt: print('RECOGNIZED: {}'.format(formatted_json(evt.result.json))))
 
     # Signal for events indicating the start of a recognition session (operation).
     speech_recognizer.session_started.connect(lambda evt: print('SESSION STARTED: {}'.format(evt)))
